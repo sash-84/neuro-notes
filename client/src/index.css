@@ -1,1 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Lavishly+Yours&family=Outfit:wght@100..900&family=Smooch+Sans:wght@100..900&family=Vibur&display=swap');
 @import "tailwindcss";
+
+* {
+    box-sizing: border-box;
+    font-family: "Outfit", sans-serif;
+}
