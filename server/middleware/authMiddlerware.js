@@ -1,10 +1,11 @@
+import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
-const JWT_KEY = process.env.JWT_KEY;
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 
-export const protect = (req, res, next) => {
+export const protect = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(" ")[1]; // token from "Bearer <token>"
 
@@ -12,8 +13,8 @@ export const protect = (req, res, next) => {
       return res.status(401).json({ message: "No token provided, authorization denied!" });
     }
 
-    const decoded = jwt.verify(token, JWT_KEY);
-    req.user = decoded; // we can access user id now as req.user.id
+    const decoded = jwt.verify(token, JWT_SECRET_KEY);
+    req.user = await User.findById(decoded.id).select('-password');
 
     next(); // go to the next middleware or controller
   } catch (error) {
