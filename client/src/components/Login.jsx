@@ -3,8 +3,12 @@ import axios from "axios";
 import { MdEmail } from "react-icons/md";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { FaUser } from "react-icons/fa";
+import { useAppContext } from "../context/AppContext";
 
 const Login = () => {
+
+  const {setShowLogin, setIsLoggedIn, setUserName, setUserEmail} = useAppContext();
+
   const [isSignUp, setIsSignUp] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -48,8 +52,6 @@ const Login = () => {
   };
 
   const handleChange = (e) => {
-    console.log(e);
-    console.log(e.target);
     const { name, value } = e.target;
     setFormData({...formData, [name]: value });
     setErrors({...errors, [name]: "" });
@@ -80,6 +82,13 @@ const Login = () => {
         }
         const res = await axios.post("http://localhost:5000/api/user/login", loginData);
         console.log("success: ",res.data);
+        localStorage.setItem("token",res.data.token )
+        localStorage.setItem("userName",res.data.user.name)
+        localStorage.setItem("userEmail",res.data.user.email)
+        setUserName(localStorage.getItem("userName"));
+        setUserEmail(localStorage.getItem("userEmail"));
+        setShowLogin(false);
+        setIsLoggedIn(true);
     } catch (error) {
         console.log("error: ",error);
         setErrors({ ...errors, password: "Invalid email or password" });
@@ -113,19 +122,25 @@ const Login = () => {
     try {
         const res = await axios.post("http://localhost:5000/api/user/register", formData);
         console.log(res);
+        toggleSignUp();
     } catch (error) {
         console.log(error.response);
-        setErrors({ ...errors, general: error.response?.data?.message || "An error occurred during registration." }); // General error for registration
+        setErrors({ ...errors, general: error.response?.data?.message || "An error occurred during registration." });
     }
   };
 
   const toggleSignUp = () => {
-    setIsSignUp(true);
+    setIsSignUp(!isSignUp);
+    setFormData({name: "",
+    email: "",
+    password: ""
+  });
     setErrors({ name: "", email: "", password: "", general: "" });
   };
 
   return (
-    <form onSubmit={isSignUp ? handleRegister : handleLogin} className="max-w-96 w-full text-center border border-gray-300/60 rounded-2xl px-8 bg-white">
+    <form onSubmit={isSignUp ? handleRegister : handleLogin} className="max-w-96 w-full text-center border border-gray-300/60 rounded-2xl px-8 bg-white fixed z-10">
+        <button className="absolute top-4 right-5 text-gray-600 hover:text-gray-900" onClick={()=>{setShowLogin(false)}}>X</button>
       <h1 className="text-gray-900 text-3xl mt-10 font-medium">{isSignUp ? "Sign Up" : "Login"}</h1>
       <p className="text-gray-500 text-sm mt-2">
         {isSignUp ? "Please create an account" : "Please sign in to continue"}
